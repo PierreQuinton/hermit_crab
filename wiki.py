@@ -26,8 +26,19 @@ class Wiki:
         params3='?format=json&action=query&meta=tokens&continue='
         r3=requests.get(baseurl+'api.php'+params3,cookies=r2.cookies)
         self.edit_token=r3.json()['query']['tokens']['csrftoken']
-
         self.edit_cookie=r2.cookies.copy()
         self.edit_cookie.update(r3.cookies)
+        self.baseurl = baseurl
+        self.summary = summary
 
+    def writeToPage(self, content, page, append=False):
+        """
+        :param content: content to push to page
+        """
+        headers={'content-type':'application/x-www-form-urlencoded'}
+        if append:
+            payload={'action':'edit','assert':'user','format':'json','appendtext':content,'summary':self.summary,'title':page,'token':self.edit_token}
+        else:
+            payload={'action':'edit','assert':'user','format':'json','text':content,'summary':self.summary,'title':page,'token':self.edit_token}
+        r4=requests.post(self.baseurl+'api.php',headers=headers,data=payload,cookies=self.edit_cookie)
 
