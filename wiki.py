@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import urllib2
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
 import requests
 
 class Wiki:
