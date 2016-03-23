@@ -3,12 +3,15 @@
 from wiki import Wiki
 
 if __name__ == '__main__':
-    wiki = Wiki('Calamar', 'poulpe', summary='Calamarification')
+    wiki = Wiki('Calamar', 'poulpe')
     content='==Biographie==\n'
     content+='Veuillez écrire une biographie ici\n'
     content+='==Références==\n'
-    page='Calamar SandBox'
-    wiki.writeToPage(content, page)
+    page='Bacasable'
+    wiki.writeToPage(content, page, summary='Calamarification')
     
-    content='=== Ngrams viewer ===\n'
-    wiki.writeToPage(content, page, True)
+    content='\n=== Ngrams viewer ===\n'
+    wiki.writeToPage(content, page, True, summary='Calamarification')
+    
+    newContent=wiki.readPage(page)
+    print(newContent)
