@@ -58,28 +58,64 @@ class Wiki:
             code+=primitive.string
         return code
 
-    def search(self, page, pattern):
+    def find(self, pages, patterns):
         """
-        :param page: page in which we sould search
-        :param pattern: regex pattern to parse the page with, see https://docs.python.org/2/library/re.html
+        :param page: page or list of pages in which we sould search
+        :param pattern: regex pattern or list of patterns to parse the page with, see https://docs.python.org/2/library/re.html
         :return: return all the matches
         """
-        #TODO: make page eigther a page or a list of pages
-        #TODO: make pattern a pattern or a list of patterns
-        return re.findall(pattern, self.readPage(page))
+        if type(pages) == type(''):
+            pages = [pages]
+        if type(patterns) == type(''):
+            patterns = [patterns]
+        res = []
+        unionPattern = '|'.join(patterns)
+        for page in pages:
+            res.append(re.findall(unionPattern, self.readPage(page)))
+        return res
 
-    def replace(self, page, pattern, replace, summary='Bot modification'):
+    def replace(self, pages, patterns, replaces, summary='Bot modification'):
         """
         :param page: page in which we should replace
         :param pattern: regex pattern to parse the page with, see https://docs.python.org/2/library/re.html
         :param replace: the replacement string (might want to use groups with \1, \2 ...)
         :return: the new page content and the amount of replacement done in a tuple
         """
-        #TODO: make page eigther a page or a list of pages
-        #TODO: make pattern a pattern or a list of patterns with all correspondings replaces expressions
-
-        res = re.subn(pattern, replace, self.readPage(page))
-        self.writeToPage(res[0], page, False, summary)
+        if type(pages) == type(''):
+            pages = [pages]
+        if type(patterns) == type(''):
+            patterns = [patterns]
+        if type(replaces) == type(''):
+            replaces = [replaces]
+        if len(patterns) != len(replaces):
+            raise ValueError
+        res = (0, [])
+        unionPattern = '|'.join(patterns)
+        for page in pages:
+            c = self.readPage(page)
+            length = len(c)
+            newContent = c
+            offset = 0
+            for m in re.finditer(unionPattern, c):
+                res = (res[0]+1,res[1])
+                matchText = c[m.start():m.end()]
+                i = 0
+                for p in patterns:
+                    if re.match(p, matchText) != None:
+                        replaceContent = re.sub(p, replaces[i], matchText)
+                        if m.start() != 0 and m.end() != length-1:
+                            newContent = newContent[:m.start()+offset] + replaceContent + c[m.end():]
+                        elif m.start() == 0 and m.end() != length-1:
+                            newContent = replaceContent + c[m.end():]
+                        elif m.start() != 0 and m.end() == length-1:
+                            newContent = newContent[:m.start()+offset] + replaceContent
+                        else:
+                            newContent = replaceContent
+                        offset += len(replaceContent) - (m.end()-m.start())
+                        break
+                    i = i+1
+            res[1].append(newContent)
+            self.writeToPage(newContent, page, False, summary)
         return res
 
 
