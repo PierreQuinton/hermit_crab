@@ -65,6 +65,7 @@ class Wiki:
         :return: return all the matches
         """
         #TODO: make page eigther a page or a list of pages
+        #TODO: make pattern a pattern or a list of patterns
         return re.findall(pattern, self.readPage(page))
 
     def replace(self, page, pattern, replace, summary='Bot modification'):
@@ -75,6 +76,8 @@ class Wiki:
         :return: the new page content and the amount of replacement done in a tuple
         """
         #TODO: make page eigther a page or a list of pages
+        #TODO: make pattern a pattern or a list of patterns with all correspondings replaces expressions
+
         res = re.subn(pattern, replace, self.readPage(page))
         self.writeToPage(res[0], page, False, summary)
         return res
