@@ -18,7 +18,9 @@ if __name__ == '__main__':
     # read the page, wow it's the same as wat we wrote !
     newContent=wiki.readPage(page)
     print(newContent)
-
+    
+    # search the titles
     print(wiki.search([page], [r"===.+===", r"==.+=="]))
 
+    # revert the titles of order 2 and 3
     print(wiki.replace(page, [r"===.+===", r"==.+=="], [r"==.+==", r"===.+==="], 'Calamarification'))
