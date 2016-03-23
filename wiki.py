@@ -6,6 +6,7 @@ except ImportError:
     import urllib2
 import requests
 from bs4 import BeautifulSoup
+import re
 
 class Wiki:
     """ Simplifie l'acces a wiki """
@@ -48,6 +49,7 @@ class Wiki:
     def readPage(self, page):
         """
         :param page: page to get content from
+        :return: the content of the page
         """
         result=requests.post(self.baseURL+'api.php?action=query&titles='+page+'&export&exportnowrap')
         soup=BeautifulSoup(result.text, "lxml")
@@ -55,3 +57,27 @@ class Wiki:
         for primitive in soup.findAll("text"):
             code+=primitive.string
         return code
+
+    def search(self, page, pattern):
+        """
+        :param page: page in which we sould search
+        :param pattern: regex pattern to parse the page with, see https://docs.python.org/2/library/re.html
+        :return: return all the matches
+        """
+        #TODO: make page eigther a page or a list of pages
+        return re.findall(pattern, self.readPage(page))
+
+    def replace(self, page, pattern, replace, summary='Bot modification'):
+        """
+        :param page: page in which we should replace
+        :param pattern: regex pattern to parse the page with, see https://docs.python.org/2/library/re.html
+        :param replace: the replacement string (might want to use groups with \1, \2 ...)
+        :return: the new page content and the amount of replacement done in a tuple
+        """
+        #TODO: make page eigther a page or a list of pages
+        res = re.subn(pattern, replace, self.readPage(page))
+        self.writeToPage(res[0], page, False, summary)
+        return res
+
+
+
