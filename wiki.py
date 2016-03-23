@@ -15,7 +15,6 @@ class Wiki:
         :param user: nom d'utilisateur du bot
         :param password: mot de passe du bot
         :param baseURL: url du wiki
-        :param summary: summary du bot (message associé aux modifications qu'il apporte)
         """
         passw=urllib2.quote(password)
         login_params='?action=login&lgname=%s&lgpassword=%s&format=json'% (user,passw)
@@ -38,6 +37,9 @@ class Wiki:
     def writeToPage(self, content, page, append=False, summary='Bot modification'):
         """
         :param content: content to push to page
+        :param page: page to write to
+        :param append: if false we replace, else we add it at the end
+        :param summary: summary du bot (message associé aux modifications qu'il apporte)
         """
         headers={'content-type':'application/x-www-form-urlencoded'}
         if append:
@@ -79,6 +81,7 @@ class Wiki:
         :param page: page in which we should replace
         :param pattern: regex pattern to parse the page with, see https://docs.python.org/2/library/re.html
         :param replace: the replacement string (might want to use groups with \1, \2 ...)
+        :param summary: summary du bot (message associé aux modifications qu'il apporte)
         :return: the new page content and the amount of replacement done in a tuple
         """
         if type(pages) == type(''):
@@ -118,5 +121,15 @@ class Wiki:
             self.writeToPage(newContent, page, False, summary)
         return res
 
+    def replaceWithMap(self, pages, mapping, summary='Bot modification'):
+        """
+        :param page: page in which we should replace
+        :param mapping: mapping of words to replace and their replacement
+        :param summary: summary du bot (message associé aux modifications qu'il apporte)
+        :return: the new page content and the amount of replacement done in a tuple
+        """
+        keys = [x for x in mapping.keys()]
+        values = [mapping[x] for x in keys]
+        return self.replace(pages, keys, values, summary)
 
 
