@@ -125,7 +125,7 @@ class Wiki:
         # we escape the sequence to avoid parsing in it
         newDict = {}
         for m in mapping.keys():
-            newDict.update({r'(\W?)' + re.escape(m) + r'(\W?)':r'\1' + re.escape(mapping[m]) + r'\2'})
+            newDict.update({re.escape(m):re.escape(mapping[m])})
         return self.replace(pages, newDict, summary)
 
 
