@@ -141,6 +141,7 @@ class Wiki:
         if deepness != 0:
             edges = {}
             for x in self.find(page, r'\\[\\[(.+)\\]\\]'):
+                #TODO don't do it if already in list
                 name = x[2:-2]
                 graph.addNode(name)
                 edge.add(name)
