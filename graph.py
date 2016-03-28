@@ -72,6 +72,6 @@ class Graph:
         for node in other.nodes():
             self.addConnexions(node, other.neighbour(node))
 
-#need to implement as much graph algorithm as possible (DFS, distance, reachable, etc ...)
+#TODO need to implement as much graph algorithm as possible (DFS, distance, reachable, etc ...)
 
 

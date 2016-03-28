@@ -61,7 +61,7 @@ class Wiki:
         for primitive in soup.findAll("text"):
             code+=primitive.string
         return code
-
+#TODO add a find method with which we can play with groups in a more regex like way
     def find(self, pages, patterns):
         """
         :param page: page or list of pages in which we sould search
