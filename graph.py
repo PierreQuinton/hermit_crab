@@ -15,7 +15,7 @@ class Graph:
     def addConnexions(self, start, end):
         """
         :param name: name of the starting node
-        :param ends: name of the ending point or set of names
+        :param end: name of the ending point or set of names
         """
         if type(end) == type(''):
             end = {end}
@@ -25,7 +25,6 @@ class Graph:
             a = self.graph.get(start)
             for el in end:
                 a.add(el)
-        self.addNode(x) for x in end
 
     def hasNode(self, node):
         """
@@ -49,6 +48,13 @@ class Graph:
         """
         return {x for x in graph.keys()}
 
+    def neighbour(self, node):
+        """
+        :param node: starting node
+        :return: a set of node reachable in one step
+        """
+        return self.graph.get(node)
+
     def edges(self):
         """
         :return: set of all Node
@@ -59,6 +65,13 @@ class Graph:
                 ret.append((key, val))
         return ret
 
-#need to implement as much graph algorithm as possible (DFS, distance, etc ...)
+    def merge(self, other):
+        """
+        :param other: other graph to merge
+        """
+        for node in other.nodes():
+            self.addConnexions(node, other.neighbour(node))
+
+#need to implement as much graph algorithm as possible (DFS, distance, reachable, etc ...)
 
 

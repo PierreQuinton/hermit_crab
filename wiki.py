@@ -8,6 +8,8 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+from graph import Graph
+
 class Wiki:
     """ Simplifie l'acces a wiki """
     def __init__(self, user, password, baseURL='http://wikipast.world/wiki/'):
@@ -127,5 +129,27 @@ class Wiki:
         for m in mapping.keys():
             newDict.update({re.escape(m):re.escape(mapping[m])})
         return self.replace(pages, newDict, summary)
+
+    def getGraphFrom(self, page, deepness=-1, outSider=False):
+        """
+        :param page: starting page
+        :param deepness: max deepness of the graph, if less than 0 will do all the graph
+        :param outsider: if we want or not the outsider link of format [link] in the graph, they will not be nodes
+        :return: a graph of the page relationships
+        """
+        graph = Graph()
+        if deepness != 0:
+            edges = {}
+            for x in self.find(page, r'\\[\\[(.+)\\]\\]'):
+                name = x[2:-2]
+                graph.addNode(name)
+                edge.add(name)
+                graph.merge(self.getGraphFrom(name, deepness-1, outSider))
+            if outSider:
+                for x in self.find(page, r'\\[[^\\[\\]]+\\]')
+                    edge.add(x[1:-1])
+            graph.addConnexions(page, edges)
+        return graph
+
 
 
