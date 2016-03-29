@@ -12,7 +12,7 @@ from graph import Graph
 
 class Wiki:
     """ Simplifie l'acces a wiki """
-    def __init__(self, user, password, baseURL='http://wikipast.world/wiki/'):
+    def __init__(self, user, password, baseURL='http://wikipast.world/wiki/', memory=0):
         """
         :param user: nom d'utilisateur du bot
         :param password: mot de passe du bot
@@ -35,6 +35,37 @@ class Wiki:
         self.edit_cookie=r2.cookies.copy()
         self.edit_cookie.update(r3.cookies)
         self.baseURL = baseURL
+        self.memory = memory
+        self.page_buffer = []
+
+    def addPageToBuffer(self, name, content):
+        """
+        :param name: name of the page
+        :param content: content of the page
+        """
+        if self.memory > 0:
+            found = -1
+            for i in range(0, len(self.page_buffer)-1):
+                if self.page_buffer[i] == name:
+                    found = i
+                    break
+            if found != -1:
+                self.page_buffer = self.page_buffer[:found] + self.page_buffer[found+1:] + [(name, content)]
+            elif len(self.page_buffer) < self.memory:
+                self.page_buffer.append((name, content))
+            else:
+                self.page_buffer = self.page_buffer[1:] + [(name, content)]
+
+    def findPageInBuffer(self, name):
+        """
+        :param name: name of the page
+        :return: (position, content) of the page in the buffer, position is -1 if not found
+        """
+        for i in range(0, len(self.page_buffer)-1):
+            if self.page_buffer[i] == name:
+                return (i, self.page_buffer[i][1])
+        return (-1,'')
+        
 
     def writeToPage(self, content, page, append=False, summary='Bot modification'):
         """
@@ -43,6 +74,8 @@ class Wiki:
         :param append: if false we replace, else we add it at the end
         :param summary: summary du bot (message associé aux modifications qu'il apporte)
         """
+        if not append:
+            self.addPageToBuffer(page, content)
         headers={'content-type':'application/x-www-form-urlencoded'}
         if append:
             payload={'action':'edit','assert':'user','format':'json','appendtext':content,'summary':summary,'title':page,'token':self.edit_token}
@@ -55,11 +88,15 @@ class Wiki:
         :param page: page to get content from
         :return: the content of the page
         """
+        buffered = self.findPageInBuffer(page)
+        if buffered[0] != -1:
+            return buffered[1]
         result=requests.post(self.baseURL+'api.php?action=query&titles='+page+'&export&exportnowrap')
         soup=BeautifulSoup(result.text, "lxml")
         code=''
         for primitive in soup.findAll("text"):
             code+=primitive.string
+        self.addPageToBuffer(page, code)
         return code
 #TODO add a find method with which we can play with groups in a more regex like way
     def find(self, pages, patterns):
@@ -114,6 +151,7 @@ class Wiki:
                         break
                     i = i+1
             res[1].append(newContent)
+            self.addPageToBuffer(page, newContent)
             self.writeToPage(newContent, page, False, summary)
         return res
 
@@ -141,11 +179,11 @@ class Wiki:
         if deepness != 0:
             edges = {}
             for x in self.find(page, r'\\[\\[(.+)\\]\\]'):
-                #TODO don't do it if already in list
                 name = x[2:-2]
-                graph.addNode(name)
-                edge.add(name)
-                graph.merge(self.getGraphFrom(name, deepness-1, outSider))
+                if not grap.hasNode(name):
+                    graph.addNode(name)
+                    edge.add(name)
+                    graph.merge(self.getGraphFrom(name, deepness-1, outSider))
             if outSider:
                 for x in self.find(page, r'\\[[^\\[\\]]+\\]')
                     edge.add(x[1:-1])
