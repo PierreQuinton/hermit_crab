@@ -107,8 +107,6 @@ class Wiki:
         """
         if type(pages) == type(''):
             pages = [pages]
-        if type(pages) == type({''}):
-            pages = [x for x in pages]
         elif type(pages) == type(Graph()):
             pages = [x for x in pages.nodes]
         if type(patterns) == type(''):
@@ -128,8 +126,6 @@ class Wiki:
         """
         if type(pages) == type(''):
             pages = [pages]
-        if type(pages) == type({''}):
-            pages = [x for x in pages]
         elif type(pages) == type(Graph()):
             pages = [x for x in pages.nodes]
         res = (0, [])
