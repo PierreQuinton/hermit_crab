@@ -167,7 +167,7 @@ class Wiki:
         :param summary: summary du bot (message associé aux modifications qu'il apporte)
         :return: the new page content and the amount of replacement done in a tuple
         """
-        # we escape the sequence to avoid parsing in it
+        # we escape the sequence to avoid regular expressions in it
         newDict = {}
         for m in mapping.keys():
             newDict.update({re.escape(m):re.escape(mapping[m])})
