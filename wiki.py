@@ -107,6 +107,8 @@ class Wiki:
         """
         if type(pages) == type(''):
             pages = [pages]
+        elif type(pages) == type(Graph()):
+            pages = [x for x in pages.nodes]
         if type(patterns) == type(''):
             patterns = [patterns]
         res = []
@@ -124,6 +126,8 @@ class Wiki:
         """
         if type(pages) == type(''):
             pages = [pages]
+        elif type(pages) == type(Graph()):
+            pages = [x for x in pages.nodes]
         res = (0, [])
         patterns = mapping.keys()
         unionPattern = '|'.join(patterns)
