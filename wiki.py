@@ -99,6 +99,7 @@ class Wiki:
         self.addPageToBuffer(page, code)
         return code
 #TODO add a find method with which we can play with groups in a more regex like way
+#TODO in find and replace (and othhers) return a dict page->set of matches
     def find(self, pages, patterns):
         """
         :param page: page or list of pages in which we sould search
@@ -195,5 +196,5 @@ class Wiki:
                     graph.addConnexions(page, edges)
         return graph
 
-
+#TODO define functions as filter page from graph or getGraphfiltered, 
 
