@@ -172,7 +172,7 @@ class Wiki:
             newDict.update({re.escape(m):re.escape(mapping[m])})
         return self.replace(pages, newDict, summary)
 
-    def getGraphFrom(self, page, deepness=-1, outSider=False):
+    def getGraphFrom(self, pages, deepness=-1, outSider=False):
         """
         :param page: starting page
         :param deepness: max deepness of the graph, if less than 0 will do all the graph
@@ -182,16 +182,17 @@ class Wiki:
         graph = Graph()
         if deepness != 0:
             edges = {}
-            for x in self.find(page, r'\\[\\[(.+)\\]\\]'):
-                name = x[2:-2]
-                if not grap.hasNode(name):
-                    graph.addNode(name)
-                    edge.add(name)
-                    graph.merge(self.getGraphFrom(name, deepness-1, outSider))
-            if outSider:
-                for x in self.find(page, r'\\[[^\\[\\]]+\\]')
-                    edge.add(x[1:-1])
-            graph.addConnexions(page, edges)
+            for page_matches in self.find(pages, r'\\[\\[(.+)\\]\\]'):
+                for x in page_matches:
+                    name = x[2:-2]
+                    if not grap.hasNode(name):
+                        graph.addNode(name)
+                        edge.add(name)
+                        graph.merge(self.getGraphFrom(name, deepness-1, outSider))
+                    if outSider:
+                        for x in self.find(page, r'\\[[^\\[\\]]+\\]')
+                            edge.add(x[1:-1])
+                    graph.addConnexions(page, edges)
         return graph
 
 
