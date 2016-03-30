@@ -6,6 +6,7 @@ except ImportError:
     import urllib2
 import requests
 from bs4 import BeautifulSoup
+import re
 
 class Wiki:
     """ Simplifie l'acces a wiki """
@@ -14,7 +15,6 @@ class Wiki:
         :param user: nom d'utilisateur du bot
         :param password: mot de passe du bot
         :param baseURL: url du wiki
-        :param summary: summary du bot (message associé aux modifications qu'il apporte)
         """
         passw=urllib2.quote(password)
         login_params='?action=login&lgname=%s&lgpassword=%s&format=json'% (user,passw)
@@ -37,6 +37,9 @@ class Wiki:
     def writeToPage(self, content, page, append=False, summary='Bot modification'):
         """
         :param content: content to push to page
+        :param page: page to write to
+        :param append: if false we replace, else we add it at the end
+        :param summary: summary du bot (message associé aux modifications qu'il apporte)
         """
         headers={'content-type':'application/x-www-form-urlencoded'}
         if append:
@@ -48,6 +51,7 @@ class Wiki:
     def readPage(self, page):
         """
         :param page: page to get content from
+        :return: the content of the page
         """
         result=requests.post(self.baseURL+'api.php?action=query&titles='+page+'&export&exportnowrap')
         soup=BeautifulSoup(result.text, "lxml")
@@ -55,3 +59,73 @@ class Wiki:
         for primitive in soup.findAll("text"):
             code+=primitive.string
         return code
+
+    def find(self, pages, patterns):
+        """
+        :param page: page or list of pages in which we sould search
+        :param pattern: regex pattern or list of patterns to parse the page with, see https://docs.python.org/2/library/re.html
+        :return: return all the matches
+        """
+        if type(pages) == type(''):
+            pages = [pages]
+        if type(patterns) == type(''):
+            patterns = [patterns]
+        res = []
+        unionPattern = '|'.join(patterns)
+        for page in pages:
+            res.append(re.findall(unionPattern, self.readPage(page)))
+        return res
+
+    def replace(self, pages, mapping, summary='Bot modification'):
+        """
+        :param page: page in which we should replace
+        :param mapping: a dict that match patterns with their replacement
+        :param summary: summary du bot (message associé aux modifications qu'il apporte)
+        :return: the new page content and the amount of replacement done in a tuple
+        """
+        if type(pages) == type(''):
+            pages = [pages]
+        res = (0, [])
+        patterns = mapping.keys()
+        unionPattern = '|'.join(patterns)
+        for page in pages:
+            c = self.readPage(page)
+            length = len(c)
+            newContent = c
+            offset = 0
+            for m in re.finditer(unionPattern, c):
+                res = (res[0]+1,res[1])
+                matchText = c[m.start():m.end()]
+                i = 0
+                for p in patterns:
+                    if re.match(p, matchText) != None:
+                        replaceContent = re.sub(p, mapping[p], matchText)
+                        if m.start() != 0 and m.end() != length-1:
+                            newContent = newContent[:m.start()+offset] + replaceContent + c[m.end():]
+                        elif m.start() == 0 and m.end() != length-1:
+                            newContent = replaceContent + c[m.end():]
+                        elif m.start() != 0 and m.end() == length-1:
+                            newContent = newContent[:m.start()+offset] + replaceContent
+                        else:
+                            newContent = replaceContent
+                        offset += len(replaceContent) - (m.end()-m.start())
+                        break
+                    i = i+1
+            res[1].append(newContent)
+            self.writeToPage(newContent, page, False, summary)
+        return res
+
+    def replaceWords(self, pages, mapping, summary='Bot modification'):
+        """
+        :param page: page in which we should replace
+        :param mapping: mapping of words to replace and their replacement
+        :param summary: summary du bot (message associé aux modifications qu'il apporte)
+        :return: the new page content and the amount of replacement done in a tuple
+        """
+        # we escape the sequence to avoid regular expressions in it
+        newDict = {}
+        for m in mapping.keys():
+            newDict.update({re.escape(m):re.escape(mapping[m])})
+        return self.replace(pages, newDict, summary)
+
+
