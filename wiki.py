@@ -92,7 +92,7 @@ class Wiki:
         if buffered[0] != -1:
             return buffered[1]
         result=requests.post(self.baseURL+'api.php?action=query&titles='+page+'&export&exportnowrap')
-        soup=BeautifulSoup(result.text, "lxml")
+        soup=BeautifulSoup(result.text, 'html.parser')
         code=''
         for primitive in soup.findAll("text"):
             if primitive.string != None:
