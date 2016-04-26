@@ -24,5 +24,6 @@ if __name__ == '__main__':
     print('\n\n')
 
     # revert the titles of order 2 and 3
-    print(wiki.replace(page, {r"===(.+)===":r"==\1==", r"==(.+)==":r"===\1==="}, 'Calamarification')[1][0])
+    #print(wiki.replace(page, {r"===(.+)===":r"==\1==", r"==(.+)==":r"===\1==="}, 'Calamarification')[page][1][0])
 
+    print(wiki.getGraphFrom('Accueil', deepness=2).nodes())
