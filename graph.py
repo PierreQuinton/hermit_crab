@@ -10,7 +10,7 @@ class Graph:
         :param name: name of the Node
         """
         if self.graph.get(name) == None:
-            self.update({name:{}})
+            self.graph.update({name:set()})
 
     def addConnexions(self, start, end):
         """
@@ -46,7 +46,7 @@ class Graph:
         """
         :return: set of all Node
         """
-        return {x for x in graph.keys()}
+        return {x for x in self.graph.keys()}
 
     def neighbour(self, node):
         """

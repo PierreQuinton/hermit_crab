@@ -95,11 +95,11 @@ class Wiki:
         soup=BeautifulSoup(result.text, "lxml")
         code=''
         for primitive in soup.findAll("text"):
-            code+=primitive.string
+            if primitive.string != None:
+                code+=primitive.string
         self.addPageToBuffer(page, code)
         return code
-#TODO add a find method with which we can play with groups in a more regex like way
-#TODO in find and replace (and othhers) return a dict page->set of matches
+
     def find(self, pages, patterns):
         """
         :param page: page or list of pages in which we sould search
@@ -112,10 +112,10 @@ class Wiki:
             pages = [x for x in pages.nodes]
         if type(patterns) == type(''):
             patterns = [patterns]
-        res = []
+        res = {}
         unionPattern = '|'.join(patterns)
         for page in pages:
-            res.append(re.findall(unionPattern, self.readPage(page)))
+            res.update({page:re.findall(unionPattern, self.readPage(page))})
         return res
 
     def replace(self, pages, mapping, summary='Bot modification'):
@@ -129,7 +129,7 @@ class Wiki:
             pages = [pages]
         elif type(pages) == type(Graph()):
             pages = [x for x in pages.nodes]
-        res = (0, [])
+        res = {}
         patterns = mapping.keys()
         unionPattern = '|'.join(patterns)
         for page in pages:
@@ -137,8 +137,9 @@ class Wiki:
             length = len(c)
             newContent = c
             offset = 0
+            temp = (0, [])
             for m in re.finditer(unionPattern, c):
-                res = (res[0]+1,res[1])
+                temp = (temp[0]+1,temp[1])
                 matchText = c[m.start():m.end()]
                 i = 0
                 for p in patterns:
@@ -155,7 +156,8 @@ class Wiki:
                         offset += len(replaceContent) - (m.end()-m.start())
                         break
                     i = i+1
-            res[1].append(newContent)
+            temp[1].append(newContent)
+            res.update({page:temp})
             self.addPageToBuffer(page, newContent)
             self.writeToPage(newContent, page, False, summary)
         return res
@@ -173,7 +175,7 @@ class Wiki:
             newDict.update({re.escape(m):re.escape(mapping[m])})
         return self.replace(pages, newDict, summary)
 
-    def getGraphFrom(self, pages, deepness=-1, outSider=False):
+    def getGraphFrom(self, pages, deepness=-1, outSider=False, ignore=set()):
         """
         :param page: starting page
         :param deepness: max deepness of the graph, if less than 0 will do all the graph
@@ -182,19 +184,21 @@ class Wiki:
         """
         graph = Graph()
         if deepness != 0:
-            edges = {}
-            for page_matches in self.find(pages, r'\\[\\[(.+)\\]\\]'):
-                for x in page_matches:
-                    name = x[2:-2]
-                    if not grap.hasNode(name):
-                        graph.addNode(name)
-                        edge.add(name)
-                        graph.merge(self.getGraphFrom(name, deepness-1, outSider))
+            edges = set()
+            temp = self.find(pages, r'\[\[([^\]]+)\]\]')
+            for page in temp.keys():
+                for match in temp[page]:
+                    if not match in ignore:
+                        graph.addNode(match)
+                        edges.add(match)
+                        ignore.add(match)
+                        graph.merge(self.getGraphFrom(match, deepness-1, outSider, ignore))
                     if outSider:
-                        for x in self.find(page, r'\\[[^\\[\\]]+\\]')
-                            edge.add(x[1:-1])
-                    graph.addConnexions(page, edges)
+                        for x in self.find(pages, r'\[[^\[\]]+\]'):
+                            edge.add(x)
+                    graph.addConnexions(match, edges)
         return graph
+
 
 #TODO define functions as filter page from graph or getGraphfiltered, 
 
