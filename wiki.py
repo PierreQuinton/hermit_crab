@@ -109,10 +109,13 @@ class Wiki:
         """
         pageContent = self.readPage(page)
         titleEquals = ""
-        for x in range(1, title):
+        for x in range(0, title):
             titleEquals = titleEquals + '='
         pattern = titleEquals + r'(.+)' + titleEquals + r'\s+(((.+)(\s+))+)' + titleEquals
-        return re.search(pattern, pageContent).group(2)
+        ret = re.search(pattern, pageContent).group(2)
+        if ret == None:
+            return false
+        return ret
 
     def find(self, pages, patterns):
         """
