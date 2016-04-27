@@ -107,7 +107,12 @@ class Wiki:
         :title: integer specifing the level of title we use
         :return: the content of se section in the page
         """
-        
+        pageContent = self.readPage(page)
+        titleEquals = ""
+        for x in range(1, title):
+            titleEquals = titleEquals + '='
+        pattern = titleEquals + r'(.+)' + titleEquals + r'\s+(((.+)(\s+))+)' + titleEquals
+        return re.search(pattern, pageContent).group(2)
 
     def find(self, pages, patterns):
         """

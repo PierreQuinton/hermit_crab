@@ -17,13 +17,17 @@ if __name__ == '__main__':
     
     # read the page, wow it's the same as wat we wrote !
     newContent=wiki.readPage(page)
-    print(newContent + '\n\n')
+    #print(newContent + '\n\n')
+
+    newContent=wiki.readSection('ReplaceBot', 'Replace Words', 2)
+    print(newContent)
+    print('\n\n')
     
     # search the titles
-    print(wiki.find([page], [r"===.+===", r"==.+=="]))
-    print('\n\n')
+    #print(wiki.find([page], [r"===.+===", r"==.+=="]))
+    #print('\n\n')
 
     # revert the titles of order 2 and 3
     #print(wiki.replace(page, {r"===(.+)===":r"==\1==", r"==(.+)==":r"===\1==="}, 'Calamarification')[page][1][0])
 
-    print(wiki.getGraphFrom('Accueil', deepness=2).nodes())
+    #print(wiki.getGraphFrom('Accueil', deepness=2).nodes())
