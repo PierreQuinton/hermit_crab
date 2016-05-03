@@ -34,7 +34,8 @@ class Bot:
         :param content: content of the page (give it wiki.readpage(myPage))
         """
         functions = getSections(content)
-        print(functions)
-        parts = getParts(functions['Replace Words'])
-        print(parts)
+        self.functions = {}
+        for i in functions.keys():
+        	parts = getParts(i)
+        	
         
