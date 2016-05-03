@@ -100,6 +100,23 @@ class Wiki:
         self.addPageToBuffer(page, code)
         return code
 
+    def readSection(self, page, section, title):
+        """
+        :param page: page to get content from
+        :param section: section to get content from
+        :title: integer specifing the level of title we use
+        :return: the content of se section in the page
+        """
+        pageContent = self.readPage(page)
+        titleEquals = ""
+        for x in range(0, title):
+            titleEquals = titleEquals + '='
+        pattern = titleEquals + r'(.+)' + titleEquals + r'\s+(((.+)(\s+))+)' + titleEquals
+        ret = re.search(pattern, pageContent).group(2)
+        if ret == None:
+            return false
+        return ret
+
     def find(self, pages, patterns):
         """
         :param page: page or list of pages in which we sould search
