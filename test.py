@@ -33,4 +33,4 @@ if __name__ == '__main__':
 
     #print(wiki.getGraphFrom('Accueil', deepness=2).nodes())
 
-    bot = Bot(wiki.readPage('ReplaceBot'))
+    bot = Bot('ReplaceBot', wiki.readPage('ReplaceBot'))

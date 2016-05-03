@@ -34,21 +34,36 @@ def getList(content):
     :return: a python list from a wiki list
     """
     li = content.splitlines()
+    ret = []
     for i in range(len(li)):
-        li[i] = li[i][1:len(li[i])]
-        #remove space
-        li[i] = li[i].rstrip()
+        if len(li[i]) > 0:
+            if li[i][0] == "*":
+                li[i] = li[i][1:]
+            #remove space
+            li[i] = li[i].strip()
+            ret.append(li[i])
         
-    return li;
+    return ret;
 
 class Bot:
     """Representaion of a Bot"""
-    def __init__(self, content):
+    def __init__(self, name, content):
         """
         :param content: content of the page (give it wiki.readpage(myPage))
         """
+        self.name = name
         functions = getSections(content)
         self.functions = {}
         for i in functions.keys():
-            parts = getParts(i)
-            print(getList(parts['replace']))
+            parts = getParts(functions[i])
+            temp = {}
+            for j in parts.keys():
+                temp.update({j:getList(parts[j])})
+            self.functions.update({i:temp})
+        
+    def getFunction(self, name):
+        """
+        :param name: name of functions
+        :return: code of function
+        """
+        return self.functions.get(name)
