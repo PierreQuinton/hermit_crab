@@ -2,16 +2,12 @@
 
 import re
 
-def getSections(content, titleLevel):
+def getSections(content):
     """
     :param content: content to get sections from
-    :param titleLevel: level of title
     :return: return dict containing {tile:content}
     """
-    titleEquals = ""
-    for x in range(0, titleLevel):
-        titleEquals = titleEquals + '='
-    pattern = titleEquals + r'(([^=].*[^=])|[^=])' + titleEquals + r'\s+(((.+)(\s+))+)((?=(\s' + titleEquals + r')|\s*$))'
+    pattern = r'==(([^=].*[^=])|[^=])==\s+((([^=]+)(\s+))+)(?=(\s==))'
     res = {}
     for x in re.finditer(pattern, content):
         res.update({x.group(1):x.group(3)})
@@ -23,5 +19,5 @@ class Bot:
         """
         :param content: content of the page (give it wiki.readpage(myPage))
         """
-        functions = getSections(content, 2)
+        functions = getSections(content)
         print(functions)
