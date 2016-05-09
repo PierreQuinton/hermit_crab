@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import requests
 
 def getSections(content):
     """
@@ -67,3 +68,9 @@ class Bot:
         :return: code of function
         """
         return self.functions.get(name)
+    def getFunctions(self):
+        """
+        :param name: name of functions
+        :return: code of function
+        """
+        return self.functions.keys()
